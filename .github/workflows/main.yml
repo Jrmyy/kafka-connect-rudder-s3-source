@@ -19,4 +19,4 @@ jobs:
       - name: Lint
         run: ./gradlew lintKotlin
       - name: Test
-        run: ./gradlew test
+        run: ./gradlew test -i

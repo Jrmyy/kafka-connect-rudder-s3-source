@@ -1,0 +1,32 @@
+name: tag
+
+on :
+  push :
+    tags :
+      - '*.*.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: zulu
+          java-version: 11
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Create distribution zip
+        run: ./gradlew distZip -Pversion=${{ github.ref_name }}
+      - name: Create release
+        id: github_release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          files: build/distributions/kafka-connect-rudder-s3-source-${{ github.ref_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -9,7 +9,6 @@ plugins {
 }
 
 group = "com.jobteaser"
-version = "1.0.0"
 
 val kafkaVersion = "3.4.0"
 

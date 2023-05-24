@@ -18,9 +18,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Lint
-        run: ./gradlew lintKotlin --daemon
+        run: ./gradlew lintKotlin
       - name: Generate kover coverage report
-        run: ./gradlew koverXmlReport --daemon
+        run: ./gradlew koverXmlReport -i
       - name: Add coverage report to PR
         id: kover
         uses: mi-kas/kover-report@v1

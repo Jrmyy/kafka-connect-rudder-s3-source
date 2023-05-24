@@ -3,7 +3,9 @@ package me.jrmyy.kcrss3
 import aws.smithy.kotlin.runtime.util.length
 import kotlinx.coroutines.runBlocking
 import me.jrmyy.kcrss3.file.ArchivedJSONLFileParser
+import me.jrmyy.kcrss3.file.FileParser
 import me.jrmyy.kcrss3.s3.S3Service
+import me.jrmyy.kcrss3.utils.TimeHelper
 import mu.KLogger
 import mu.KotlinLogging
 import org.apache.kafka.connect.data.Schema
@@ -17,27 +19,33 @@ class RudderS3SourceService(
     private val topic: String,
     private val offsetStorageReader: OffsetStorageReader,
     private val s3Service: S3Service,
-    private val parser: ArchivedJSONLFileParser = ArchivedJSONLFileParser()
+    private val parser: FileParser = ArchivedJSONLFileParser(),
 ) {
 
     fun generateRecords(): List<SourceRecord> =
         folders.flatMap { folder ->
             val offset = offsetStorageReader.offset(offsetKey(folder))
             val lastFile = if (offset != null) {
-                val lastFileOffset = offset[LAST_FILE_FIELD]
+                val lastFileOffsetValue = offset.getOrDefault(LAST_FILE_FIELD, null)
 
-                if (lastFileOffset != null && lastFileOffset !is String) {
-                    throw ConnectException("Offset position is the incorrect type.")
+                if (lastFileOffsetValue != null && lastFileOffsetValue !is String) {
+                    throw ConnectException("Offset position is of incorrect type.")
                 }
 
-                if (lastFileOffset != null) {
-                    logger.debug("Found a last file offset, will fetch the records from here.")
-                    lastFileOffset as String
+                val lastFileOffset = lastFileOffsetValue as String?
+
+                if (!lastFileOffset.isNullOrBlank()) {
+                    logger.debug(
+                        "Found a last file offset `$lastFileOffset`, will fetch the records " +
+                            "from here.",
+                    )
+                    lastFileOffset
                 } else {
-                    logger.debug("No offset, starting from the beginning.")
+                    logger.debug("Offset is null or blank, starting from the beginning.")
                     ""
                 }
             } else {
+                logger.debug("No offset, starting from the beginning.")
                 ""
             }
 
@@ -66,7 +74,7 @@ class RudderS3SourceService(
                             "$file-$lineIdx",
                             Schema.STRING_SCHEMA,
                             line,
-                            System.currentTimeMillis()
+                            TimeHelper.getNow(),
                         )
                     } + listOf(
                         SourceRecord(
@@ -78,8 +86,8 @@ class RudderS3SourceService(
                             "$file-${records.length - 1}",
                             Schema.STRING_SCHEMA,
                             records.last(),
-                            System.currentTimeMillis()
-                        )
+                            TimeHelper.getNow(),
+                        ),
                     )
                     File(localPath).delete()
                     sourceRecords
@@ -104,20 +112,20 @@ class RudderS3SourceService(
 
         fun build(
             configuration: RudderS3SourceConfiguration,
-            offsetStorageReader: OffsetStorageReader
+            offsetStorageReader: OffsetStorageReader,
         ): RudderS3SourceService {
             val s3Service = S3Service(
                 awsAccessKey = configuration.getAWSAccessKey(),
                 awsSecretKey = configuration.getAWSSecretKey(),
                 s3Region = configuration.getS3Region(),
                 s3Bucket = configuration.getS3Bucket(),
-                maxFiles = configuration.getMaxFilesToFetch()
+                maxFiles = configuration.getMaxFilesToFetch(),
             )
             return RudderS3SourceService(
                 s3Service = s3Service,
                 offsetStorageReader = offsetStorageReader,
                 topic = configuration.getTopic(),
-                folders = configuration.getS3FolderPrefixes()
+                folders = configuration.getS3FolderPrefixes(),
             )
         }
     }

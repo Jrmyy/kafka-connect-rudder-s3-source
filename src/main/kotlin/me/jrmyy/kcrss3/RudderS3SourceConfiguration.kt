@@ -5,7 +5,7 @@ import org.apache.kafka.common.config.AbstractConfig
 import org.apache.kafka.common.config.ConfigDef
 
 class RudderS3SourceConfiguration(
-    properties: Map<String, String>
+    properties: Map<String, String>,
 ) {
 
     private val parsedConfig: AbstractConfig = AbstractConfig(CONFIG_DEF, properties)
@@ -44,7 +44,7 @@ class RudderS3SourceConfiguration(
                 ConfigDef.NO_DEFAULT_VALUE,
                 ConfigDef.NonEmptyString(),
                 ConfigDef.Importance.HIGH,
-                "The name of the bucket"
+                "The name of the bucket",
             )
             .define(
                 S3_REGION,
@@ -52,7 +52,7 @@ class RudderS3SourceConfiguration(
                 "eu-west-1",
                 KafkaConfigValidator.AWSRegion(),
                 ConfigDef.Importance.HIGH,
-                "The region in which is located the bucket"
+                "The region in which is located the bucket",
             )
             .define(
                 S3_BUCKET_PREFIXES,
@@ -60,11 +60,12 @@ class RudderS3SourceConfiguration(
                 listOf(""),
                 KafkaConfigValidator.ListSize.atLeast(1),
                 ConfigDef.Importance.HIGH,
-                "Since the source connector is relying on the `startAfter` parameter of the s3 API, we " +
-                    "will fetch new files based on their key name. Therefore, the source connector makes it " +
-                    "mandatory, for each folder indicated in this parameter, to have new files coming " +
-                    "alphabetically after the previous files. This is possible is they are prefixed by the " +
-                    "timestamp for instance."
+                "Since the source connector is relying on the `startAfter` " +
+                    "parameter of the s3 API, we will fetch new files based on their key " +
+                    "name. Therefore, the source connector makes it mandatory, for each " +
+                    "folder indicated in this parameter, to have new files coming " +
+                    "alphabetically after the previous files. This is possible is they are " +
+                    "prefixed by the timestamp for instance.",
             )
             .define(
                 S3_BUCKET_MAX_FILES,
@@ -72,7 +73,7 @@ class RudderS3SourceConfiguration(
                 1,
                 ConfigDef.Range.between(1, 1000),
                 ConfigDef.Importance.MEDIUM,
-                "The number of files to retrieve every time the S3 API is called."
+                "The number of files to retrieve every time the S3 API is called.",
             )
             .define(
                 POLL_INTERVAL_MS,
@@ -80,7 +81,8 @@ class RudderS3SourceConfiguration(
                 30_000,
                 ConfigDef.Range.atLeast(0),
                 ConfigDef.Importance.MEDIUM,
-                "The number of milliseconds to wait between 2 polls (default: 30 seconds)"
+                "The number of milliseconds to wait between 2 polls " +
+                    "(default: 30 seconds)",
             )
             .define(
                 AWS_ACCESS_KEY_ID,
@@ -88,8 +90,8 @@ class RudderS3SourceConfiguration(
                 ConfigDef.NO_DEFAULT_VALUE,
                 ConfigDef.NonEmptyString(),
                 ConfigDef.Importance.HIGH,
-                "The access key of the user in charge of reading the files from S3. It should also have " +
-                    "the right to download a file."
+                "The access key of the user in charge of reading the files from S3. " +
+                    "It should also have the right to download a file.",
             )
             .define(
                 AWS_SECRET_ACCESS_KEY,
@@ -97,8 +99,8 @@ class RudderS3SourceConfiguration(
                 ConfigDef.NO_DEFAULT_VALUE,
                 ConfigDef.NonEmptyString(),
                 ConfigDef.Importance.HIGH,
-                "The secret key of the user in charge of reading the files from S3. It should also have " +
-                    "the right to download a file."
+                "The secret key of the user in charge of reading the files from S3. " +
+                    "It should also have the right to download a file.",
             )
             .define(
                 TOPIC_NAME,
@@ -106,7 +108,7 @@ class RudderS3SourceConfiguration(
                 ConfigDef.NO_DEFAULT_VALUE,
                 ConfigDef.NonEmptyString(),
                 ConfigDef.Importance.HIGH,
-                "The topic to publish data to"
+                "The topic to publish data to",
             )
 
         fun getConfigDef(): ConfigDef = CONFIG_DEF

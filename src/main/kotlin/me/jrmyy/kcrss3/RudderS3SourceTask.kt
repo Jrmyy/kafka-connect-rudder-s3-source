@@ -1,5 +1,6 @@
 package me.jrmyy.kcrss3
 
+import me.jrmyy.kcrss3.utils.TimeHelper
 import mu.KLogger
 import mu.KotlinLogging
 import org.apache.kafka.common.utils.Utils.sleep
@@ -23,7 +24,10 @@ class RudderS3SourceTask : SourceTask() {
         val configuration = RudderS3SourceConfiguration(props)
 
         pollIntervalMs = configuration.getPollIntervalMs()
-        rudderS3SourceS3Service = RudderS3SourceService.build(configuration, context.offsetStorageReader())
+        rudderS3SourceS3Service = RudderS3SourceService.build(
+            configuration,
+            context.offsetStorageReader(),
+        )
     }
 
     override fun stop() {
@@ -32,13 +36,13 @@ class RudderS3SourceTask : SourceTask() {
 
     override fun poll(): List<SourceRecord> {
         val nextUpdate = lastRun + pollIntervalMs
-        val untilNext = nextUpdate - System.currentTimeMillis()
+        val untilNext = nextUpdate - TimeHelper.getNow()
         if (untilNext > 0) {
             logger.debug("Waiting $untilNext ms to poll.")
             sleep(untilNext)
         }
         val records = rudderS3SourceS3Service.generateRecords()
-        lastRun = System.currentTimeMillis()
+        lastRun = TimeHelper.getNow()
         return records
     }
 

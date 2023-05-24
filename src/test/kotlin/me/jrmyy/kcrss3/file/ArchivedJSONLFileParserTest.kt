@@ -7,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class ArchivedJSONLFileParserTest : BaseTestWithLogging(
-    "me.jrmyy.kcrss3.file.ArchivedJSONLFileParser"
+    "me.jrmyy.kcrss3.file.ArchivedJSONLFileParser",
 ) {
 
     private val parser = ArchivedJSONLFileParser()
@@ -17,8 +17,8 @@ internal class ArchivedJSONLFileParserTest : BaseTestWithLogging(
         assertEquals(
             listOf("{\"a\":\"b\"}", "{\"c\":\"d\"}"),
             parser.parse(
-                File("src/test/resources/fakedata.jsonl.gz").absolutePath
-            )
+                File("src/test/resources/fakedata.jsonl.gz").absolutePath,
+            ),
         )
     }
 
@@ -27,11 +27,14 @@ internal class ArchivedJSONLFileParserTest : BaseTestWithLogging(
         assertEquals(
             listOf(),
             parser.parse(
-                File("src/test/resources/nonexistent.jsonl.gz").absolutePath
-            )
+                File("src/test/resources/nonexistent.jsonl.gz").absolutePath,
+            ),
         )
         assertEquals(1, listAppender.list.size)
         assertEquals(Level.ERROR, listAppender.list.first().level)
-        assertEquals("java.io.FileNotFoundException", listAppender.list.first().throwableProxy.className)
+        assertEquals(
+            "java.io.FileNotFoundException",
+            listAppender.list.first().throwableProxy.className,
+        )
     }
 }

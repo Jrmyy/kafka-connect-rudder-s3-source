@@ -27,7 +27,8 @@ object KafkaConfigValidator {
         }
 
         companion object {
-            private val REGEX = "(us(-gov)?|ap|ca|cn|eu|sa)-(central|(north|south)?(east|west)?)-\\d".toRegex()
+            private val REGEX =
+                "(us(-gov)?|ap|ca|cn|eu|sa)-(central|(north|south)?(east|west)?)-\\d".toRegex()
         }
     }
 }

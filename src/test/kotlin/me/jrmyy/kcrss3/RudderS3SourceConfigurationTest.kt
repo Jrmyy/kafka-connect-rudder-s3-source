@@ -15,7 +15,7 @@ internal class RudderS3SourceConfigurationTest {
         "s3.bucket.max-files" to "344",
         "s3.poll.interval.ms" to "6789",
         "aws.access.key.id" to "accId",
-        "aws.secret.access.key" to "secKey"
+        "aws.secret.access.key" to "secKey",
     )
 
     private val testConfig = RudderS3SourceConfiguration(fullConf)
@@ -29,7 +29,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Missing required configuration \"s3.bucket.name\" which has no default value.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -42,7 +42,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Invalid value  for configuration s3.bucket.name: String must be non-empty",
-            exception.message
+            exception.message,
         )
     }
 
@@ -73,7 +73,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Invalid value oo-west-1 for configuration s3.region: AWS region is invalid",
-            exception.message
+            exception.message,
         )
     }
 
@@ -98,8 +98,9 @@ internal class RudderS3SourceConfigurationTest {
             RudderS3SourceConfiguration(properties)
         }
         assertEquals(
-            "Invalid value [] for configuration s3.bucket.prefixes: lower than minimum list size of [1]",
-            exception.message
+            "Invalid value [] for configuration s3.bucket.prefixes: lower than minimum " +
+                "list size of [1]",
+            exception.message,
         )
     }
 
@@ -124,8 +125,9 @@ internal class RudderS3SourceConfigurationTest {
             RudderS3SourceConfiguration(properties)
         }
         assertEquals(
-            "Invalid value 1001 for configuration s3.bucket.max-files: Value must be no more than 1000",
-            exception.message
+            "Invalid value 1001 for configuration s3.bucket.max-files: " +
+                "Value must be no more than 1000",
+            exception.message,
         )
     }
 
@@ -151,7 +153,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Invalid value -1 for configuration s3.poll.interval.ms: Value must be at least 0",
-            exception.message
+            exception.message,
         )
     }
 
@@ -169,7 +171,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Missing required configuration \"aws.access.key.id\" which has no default value.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -182,7 +184,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Invalid value  for configuration aws.access.key.id: String must be non-empty",
-            exception.message
+            exception.message,
         )
     }
 
@@ -200,7 +202,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Missing required configuration \"aws.secret.access.key\" which has no default value.",
-            exception.message
+            exception.message,
         )
     }
 
@@ -213,7 +215,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Invalid value  for configuration aws.secret.access.key: String must be non-empty",
-            exception.message
+            exception.message,
         )
     }
 
@@ -229,7 +231,10 @@ internal class RudderS3SourceConfigurationTest {
         val exception = assertFailsWith<ConfigException> {
             RudderS3SourceConfiguration(properties)
         }
-        assertEquals("Missing required configuration \"topic\" which has no default value.", exception.message)
+        assertEquals(
+            "Missing required configuration \"topic\" which has no default value.",
+            exception.message,
+        )
     }
 
     @Test
@@ -241,7 +246,7 @@ internal class RudderS3SourceConfigurationTest {
         }
         assertEquals(
             "Invalid value  for configuration topic: String must be non-empty",
-            exception.message
+            exception.message,
         )
     }
 
@@ -258,8 +263,8 @@ internal class RudderS3SourceConfigurationTest {
                 "s3.bucket.max-files",
                 "s3.poll.interval.ms",
                 "aws.access.key.id",
-                "aws.secret.access.key"
-            )
+                "aws.secret.access.key",
+            ),
         )
         assertEquals(
             configDef.defaultValues(),
@@ -267,8 +272,8 @@ internal class RudderS3SourceConfigurationTest {
                 "s3.region" to "eu-west-1",
                 "s3.bucket.prefixes" to listOf(""),
                 "s3.bucket.max-files" to 1,
-                "s3.poll.interval.ms" to 30_000
-            )
+                "s3.poll.interval.ms" to 30_000,
+            ),
         )
     }
 }

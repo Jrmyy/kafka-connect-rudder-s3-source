@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     distribution
-    kotlin("jvm") version "1.7.22"
-    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
+    kotlin("jvm") version "1.8.20"
+    id("org.jmailen.kotlinter") version "3.14.0"
     id("org.jetbrains.kotlinx.kover") version "0.7.0-Beta"
     id("com.github.gmazzo.buildconfig") version "4.0.4"
 }
@@ -47,8 +47,22 @@ tasks {
     distTar.get().dependsOn(jar.get())
 }
 
+tasks.check {
+    dependsOn("installKotlinterPrePushHook")
+}
+
+tasks.lintKotlinMain {
+    exclude("me/jrmyy/kcrss3/BuildConfig.kt")
+}
+
 tasks.test {
     useJUnitPlatform()
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
 }
 
 distributions {

@@ -7,6 +7,8 @@ object S3ClientBuilder {
     fun build(awsAccessKey: String, awsSecretKey: String, s3Region: String): S3Client =
         S3Client {
             region = s3Region
-            credentialsProvider = CachedCredentialsProvider(AWSStaticCredentialsProvider(awsAccessKey, awsSecretKey))
+            credentialsProvider = CachedCredentialsProvider(
+                AWSStaticCredentialsProvider(awsAccessKey, awsSecretKey),
+            )
         }
 }

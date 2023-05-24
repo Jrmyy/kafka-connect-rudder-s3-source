@@ -10,7 +10,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-internal class RudderS3SourceConnectorTest : BaseTestWithLogging("me.jrmyy.kcrss3.RudderS3SourceConnector") {
+internal class RudderS3SourceConnectorTest : BaseTestWithLogging(
+    "me.jrmyy.kcrss3.RudderS3SourceConnector",
+) {
 
     private val connector = RudderS3SourceConnector()
 

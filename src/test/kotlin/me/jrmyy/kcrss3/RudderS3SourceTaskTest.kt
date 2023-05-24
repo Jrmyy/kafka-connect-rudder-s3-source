@@ -2,11 +2,7 @@ package me.jrmyy.kcrss3
 
 import aws.smithy.kotlin.runtime.util.length
 import ch.qos.logback.classic.Level
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.mockkStatic
-import io.mockk.verify
+import io.mockk.*
 import org.apache.kafka.common.utils.Utils.sleep
 import org.apache.kafka.connect.source.SourceTaskContext
 import org.apache.kafka.connect.storage.OffsetStorageReader
@@ -28,25 +24,29 @@ internal class RudderS3SourceTaskTest : BaseTestWithLogging("me.jrmyy.kcrss3.Rud
     @Test
     fun start() {
         mockkObject(RudderS3SourceService.Companion)
+
         val mockContext = mockk<SourceTaskContext>()
         val mockOffsetStorageReader = mockk<OffsetStorageReader>()
         every { mockContext.offsetStorageReader() } returns mockOffsetStorageReader
+
         task.initialize(mockContext)
         task.start(
             mapOf(
                 "topic" to "topic",
                 "s3.bucket.name" to "bucket",
                 "aws.access.key.id" to "accKey",
-                "aws.secret.access.key" to "secKey"
-            )
+                "aws.secret.access.key" to "secKey",
+            ),
         )
+
         assertEquals(1, listAppender.list.size)
         assertEquals(Level.INFO, listAppender.list[0].level)
         assertEquals("Task starting", listAppender.list[0].message)
+
         verify {
-            RudderS3SourceService.Companion invoke "build" withArguments listOf(
+            RudderS3SourceService.Companion.build(
                 any<RudderS3SourceConfiguration>(),
-                mockOffsetStorageReader
+                mockOffsetStorageReader,
             )
         }
     }
@@ -61,27 +61,34 @@ internal class RudderS3SourceTaskTest : BaseTestWithLogging("me.jrmyy.kcrss3.Rud
 
     @Test
     fun poll() {
-        mockkObject(RudderS3SourceService.Companion)
         mockkStatic(::sleep)
         every { sleep(any()) } answers { }
+
         val mockContext = mockk<SourceTaskContext>()
         val mockOffsetStorageReader = mockk<OffsetStorageReader>()
-        val mockService = mockk<RudderS3SourceService>()
         every { mockContext.offsetStorageReader() } returns mockOffsetStorageReader
-        every { RudderS3SourceService.Companion.build(any(), mockOffsetStorageReader) } returns mockService
+
+        mockkObject(RudderS3SourceService.Companion)
+        val mockService = mockk<RudderS3SourceService>()
+        every {
+            RudderS3SourceService.Companion.build(any(), mockOffsetStorageReader)
+        } returns mockService
+
         every { mockService.generateRecords() } returns listOf()
+
         task.initialize(mockContext)
         task.start(
             mapOf(
                 "topic" to "topic",
                 "s3.bucket.name" to "bucket",
                 "aws.access.key.id" to "accKey",
-                "aws.secret.access.key" to "secKey"
-            )
+                "aws.secret.access.key" to "secKey",
+            ),
         )
         task.poll()
+
         verify {
-            mockService invokeNoArgs "generateRecords"
+            mockService.generateRecords()
         }
         verify(exactly = 0) {
             sleep(any())
@@ -90,33 +97,43 @@ internal class RudderS3SourceTaskTest : BaseTestWithLogging("me.jrmyy.kcrss3.Rud
 
     @Test
     fun pollWillSleep() {
-        mockkObject(RudderS3SourceService.Companion)
         mockkStatic(::sleep)
         every { sleep(any()) } answers { }
+
         val mockContext = mockk<SourceTaskContext>()
         val mockOffsetStorageReader = mockk<OffsetStorageReader>()
-        val mockService = mockk<RudderS3SourceService>()
         every { mockContext.offsetStorageReader() } returns mockOffsetStorageReader
-        every { RudderS3SourceService.Companion.build(any(), mockOffsetStorageReader) } returns mockService
+
+        mockkObject(RudderS3SourceService.Companion)
+        val mockService = mockk<RudderS3SourceService>()
+        every {
+            RudderS3SourceService.Companion.build(any(), mockOffsetStorageReader)
+        } returns mockService
+
         every { mockService.generateRecords() } returns listOf()
+
         task.initialize(mockContext)
         task.start(
             mapOf(
                 "topic" to "topic",
                 "s3.bucket.name" to "bucket",
                 "aws.access.key.id" to "accKey",
-                "aws.secret.access.key" to "secKey"
-            )
+                "aws.secret.access.key" to "secKey",
+            ),
         )
         task.poll()
         task.poll()
+
         verify(exactly = 2) {
-            mockService invokeNoArgs "generateRecords"
+            mockService.generateRecords()
         }
         verify(exactly = 1) {
             sleep(any())
         }
-        val debugs = listAppender.list.filter { it.level == Level.DEBUG && it.message.startsWith("Waiting ") }
+
+        val debugs = listAppender.list.filter {
+            it.level == Level.DEBUG && it.message.startsWith("Waiting ")
+        }
         assertEquals(1, debugs.length)
         assertTrue("Waiting (\\d+) ms to poll.".toRegex().matches(debugs.first().message))
     }

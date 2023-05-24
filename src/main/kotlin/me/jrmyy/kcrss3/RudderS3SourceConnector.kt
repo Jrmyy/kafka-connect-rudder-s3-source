@@ -26,7 +26,9 @@ class RudderS3SourceConnector : SourceConnector() {
 
     override fun taskConfigs(maxTasks: Int): List<Map<String, String?>> {
         if (maxTasks != 1) {
-            throw TooManyMaxTasksException("This connector can only be configured with tasks.max = 1.")
+            throw TooManyMaxTasksException(
+                "This connector can only be configured with tasks.max = 1.",
+            )
         }
         return listOf(properties)
     }
